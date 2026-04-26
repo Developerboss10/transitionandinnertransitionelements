@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transition Elements — Memory Weapon</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#0a0a0a;--surface:#141414;--card:rgba(255,255,255,0.035);
+  --card-border:rgba(255,255,255,0.07);--glass:rgba(14,14,14,0.84);
+  --text:#f0f0f2;--text2:#8e8e93;--text3:#636366;
+  --pa:#0a84ff;--pb:#bf5af2;
+  --blue:#0a84ff;--blue-bg:rgba(10,132,255,0.1);--blue-bd:rgba(10,132,255,0.22);
+  --green:#30d158;--green-bg:rgba(48,209,88,0.1);--green-bd:rgba(48,209,88,0.22);
+  --red:#ff453a;--red-bg:rgba(255,69,58,0.1);--red-bd:rgba(255,69,58,0.22);
+  --purple:#bf5af2;--purple-bg:rgba(191,90,242,0.1);--purple-bd:rgba(191,90,242,0.22);
+  --orange:#ff9f0a;--orange-bg:rgba(255,159,10,0.1);--orange-bd:rgba(255,159,10,0.25);
+  --mnem:#dcc8f5;--story:#dcc8f5;
+  --th-bg:rgba(255,255,255,0.03);--opt-bg:rgba(255,255,255,0.025);
+  --active-bg:rgba(255,255,255,0.08);--nav-active:rgba(255,255,255,0.08);
+  --r:16px;--rs:10px;--rxs:8px;--shadow:0 2px 12px rgba(0,0,0,0.3)
+}
+[data-theme="light"]{
+  --bg:#f5f5f7;--surface:#fff;--card:rgba(0,0,0,0.028);
+  --card-border:rgba(0,0,0,0.08);--glass:rgba(245,245,247,0.84);
+  --text:#1d1d1f;--text2:#6e6e73;--text3:#86868b;
+  --pa:#0071e3;--pb:#5856d6;
+  --shadow:0 2px 12px rgba(0,0,0,0.06);
+  --mnem:#5e3a80;--story:#5e3a80;
+  --th-bg:rgba(0,0,0,0.03);--opt-bg:rgba(0,0,0,0.025);
+  --active-bg:rgba(0,0,0,0.06);--nav-active:rgba(0,0,0,0.06)
+}
+[data-theme="pink"]{
+  --bg:#11080d;--surface:#1a0f15;--card:rgba(255,70,120,0.035);
+  --card-border:rgba(255,80,130,0.1);--glass:rgba(26,15,21,0.84);
+  --text:#f8ecf2;--text2:#c494a8;--text3:#946a80;
+  --pa:#ff6b9d;--pb:#ff9ec6;
+  --blue:#6bb5ff;--blue-bg:rgba(107,181,255,0.08);--blue-bd:rgba(107,181,255,0.2);
+  --green:#6bffb8;--green-bg:rgba(107,255,184,0.08);--green-bd:rgba(107,255,184,0.2);
+  --red:#ff6b6b;--red-bg:rgba(255,107,107,0.08);--red-bd:rgba(255,107,107,0.2);
+  --purple:#d88bff;--purple-bg:rgba(216,139,255,0.08);--purple-bd:rgba(216,139,255,0.2);
+  --orange:#ffb86b;--orange-bg:rgba(255,184,107,0.08);--orange-bd:rgba(255,184,107,0.2);
+  --shadow:0 2px 16px rgba(255,70,120,0.08);
+  --mnem:#d4a0e8;--story:#d4a0e8;
+  --th-bg:rgba(255,80,130,0.04);--opt-bg:rgba(255,80,130,0.03);
+  --active-bg:rgba(255,80,130,0.1);--nav-active:rgba(255,80,130,0.1)
+}
+
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  transition:background-color .4s,color .4s}
+
+/* ══════════ INTRO ══════════ */
+.intro{position:fixed;inset:0;z-index:9999;background:#0a0a0a;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;opacity:1;-webkit-tap-highlight-color:transparent;
+  transition:opacity .7s cubic-bezier(.4,0,.2,1);will-change:opacity}
+.intro.gone{opacity:0;pointer-events:none}
+.intro::before{content:'';position:absolute;width:600px;height:600px;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at 50% 35%,rgba(191,90,242,.07) 0%,transparent 55%),
+  radial-gradient(ellipse at 50% 65%,rgba(10,132,255,.05) 0%,transparent 50%);
+  pointer-events:none;animation:glowPulse 3s ease-in-out infinite alternate}
+@keyframes glowPulse{
+  0%{opacity:.6;transform:translate(-50%,-50%) scale(.95)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
+}
+.intro-line{opacity:0;transform:translateY(20px) scale(.97);
+  animation:lineIn .85s cubic-bezier(.22,.61,.36,1) forwards;
+  position:relative;z-index:1;pointer-events:none;user-select:none}
+.intro-line:nth-child(1){animation-delay:.15s}
+.intro-line:nth-child(2){animation-delay:.55s}
+.intro-line:nth-child(3){animation-delay:1s}
+@keyframes lineIn{to{opacity:1;transform:translateY(0) scale(1)}}
+.intro-title{font-size:clamp(28px,7vw,48px);font-weight:600;letter-spacing:-.6px;
+  text-align:center;padding:0 28px;line-height:1.15;
+  background:linear-gradient(135deg,#f0f0f2 0%,#bf5af2 45%,#0a84ff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.intro-tag{font-size:clamp(14px,3.4vw,19px);font-weight:400;
+  color:rgba(255,255,255,.4);text-align:center;margin-top:16px;
+  padding:0 28px;line-height:1.45;-webkit-text-fill-color:initial}
+.intro-btn{margin-top:40px;padding:13px 40px;border-radius:100px;
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.65);font-family:'Inter',system-ui,sans-serif;
+  font-size:14px;font-weight:500;letter-spacing:.2px;cursor:pointer;
+  pointer-events:auto;position:relative;z-index:2;transition:all .25s ease;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.intro-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18);
+  color:rgba(255,255,255,.9);transform:translateY(-1px)}
+.intro-btn:active{transform:scale(.97);transition-duration:.1s}
+
+/* ══════════ POPUP ══════════ */
+.popup-overlay{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .35s}
+.popup-overlay.sh{opacity:1;pointer-events:auto}
+.popup-box{background:var(--glass);backdrop-filter:saturate(180%) blur(24px);
+  -webkit-backdrop-filter:saturate(180%) blur(24px);
+  border:1px solid var(--card-border);border-radius:20px;padding:28px 24px;
+  max-width:360px;width:100%;text-align:center;position:relative;
+  transform:scale(.92);transition:transform .35s cubic-bezier(.25,.46,.45,.94)}
+.popup-overlay.sh .popup-box{transform:scale(1)}
+.popup-close{position:absolute;top:12px;right:12px;width:28px;height:28px;
+  border-radius:50%;border:none;background:rgba(255,255,255,0.06);
+  color:var(--text3);font-size:14px;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;transition:all .2s}
+.popup-close:hover{background:rgba(255,255,255,0.12);color:var(--text)}
+.popup-emoji{font-size:32px;margin-bottom:12px}
+.popup-text{font-size:15px;color:var(--text2);line-height:1.6;font-weight:400}
+
+/* ══════════ PROGRESS ══════════ */
+#progress{position:fixed;top:0;left:0;height:2.5px;width:0%;z-index:1001;
+  background:linear-gradient(90deg,var(--pa),var(--pb));
+  border-radius:0 2px 2px 0;transition:width .12s linear}
+
+/* ══════════ DESKTOP NAV ══════════ */
+.dnav{position:fixed;top:2.5px;left:0;right:0;z-index:999;
+  background:var(--glass);backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--card-border);display:none;padding:0 24px;
+  transition:background .4s,border-color .4s}
+.dnav-in{max-width:720px;margin:0 auto;display:flex;align-items:center;
+  justify-content:space-between;height:44px}
+.dnav-brand{font-size:13px;font-weight:600;color:var(--text2);letter-spacing:-.2px}
+.dnav-links{display:flex;gap:3px}
+.dnav-links a{font-size:12px;font-weight:500;color:var(--text3);text-decoration:none;
+  padding:5px 10px;border-radius:var(--rxs);transition:all .2s}
+.dnav-links a.active{color:var(--text);background:var(--nav-active)}
+.tbtns{display:flex;gap:4px}
+.tbtn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--card-border);
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;
+  font-size:13px;background:transparent;color:var(--text3)}
+.tbtn:hover{border-color:var(--text3)}
+.tbtn.active{border-color:var(--text);color:var(--text);background:var(--active-bg)}
+
+/* ══════════ MOBILE NAV ══════════ */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:999;
+  background:var(--glass);backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:1px solid var(--card-border);padding:5px 4px calc(5px + env(safe-area-inset-bottom));
+  display:flex;justify-content:space-around;transition:background .4s,border-color .4s}
+.bnav a{font-size:9px;font-weight:600;color:var(--text3);text-decoration:none;
+  display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px;
+  border-radius:var(--rs);transition:all .2s;min-width:0;flex:1}
+.bnav a .n{font-size:14px;font-weight:700;line-height:1}
+.bnav a.active{color:var(--blue);background:var(--blue-bg)}
+.bnav a.tc{color:var(--purple)}
+
+/* ══════════ REV TOGGLE ══════════ */
+.rw{position:fixed;z-index:998;display:flex;flex-direction:column;align-items:center;gap:3px}
+.rw.pm{right:14px;bottom:82px}
+.rw.pd{right:calc(50% - 388px);bottom:28px}
+@media(max-width:768px){.rw.pd{display:none}}
+@media(min-width:769px){.rw.pm{display:none}}
+.rb{width:50px;height:50px;border-radius:50%;border:1px solid var(--card-border);
+  background:var(--surface);color:var(--text2);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .25s;
+  backdrop-filter:blur(12px);box-shadow:var(--shadow)}
+.rb:hover{transform:scale(1.05)}
+.rb.on{background:var(--orange);color:#000;border-color:var(--orange)}
+.rl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--text3);transition:color .2s}
+.rl.on{color:var(--orange)}
+
+/* ══════════ CONTAINER ══════════ */
+.ct{max-width:720px;margin:0 auto;padding:56px 20px 100px}
+@media(min-width:769px){.ct{padding-top:66px;padding-bottom:40px}.dnav{display:block}.bnav{display:none}}
+
+/* ══════════ PAGES ══════════ */
+.pg{margin-bottom:56px;scroll-margin-top:58px}
+@media(min-width:769px){.pg{scroll-margin-top:52px}}
+.pg-hd{margin-bottom:22px;padding-bottom:12px;border-bottom:1px solid var(--card-border);transition:border-color .4s}
+.pg-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--blue);margin-bottom:5px}
+.pg-t{font-size:26px;font-weight:700;letter-spacing:-.4px;
+  background:linear-gradient(135deg,var(--text) 0%,var(--text3) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pg-sub{font-size:13px;color:var(--text3);margin-top:3px}
+
+/* ══════════ CARDS ══════════ */
+.cd{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r);
+  padding:18px;margin-bottom:12px;transition:border-color .25s,background .4s,box-shadow .25s}
+.cd:hover{border-color:rgba(128,128,128,0.15);box-shadow:var(--shadow)}
+.cd-t{font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.bg{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.2px}
+.bg-h{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bd)}
+.bg-m{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.bg-l{background:var(--opt-bg);color:var(--text3);border:1px solid var(--card-border)}
+
+.core{font-size:14.5px;font-weight:500;color:var(--text);margin-bottom:8px;line-height:1.5}
+.core .hl{color:var(--blue);font-weight:600}
+.logic{font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.55}
+.logic .hl{color:var(--text);font-weight:500}
+
+/* ══════════ INFO BOXES ══════════ */
+.ib{border-radius:var(--rs);padding:11px 13px;margin-bottom:9px;font-size:12.5px;line-height:1.5;
+  transition:background .4s,border-color .4s}
+.ib-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+  margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.ib-t{color:var(--text2)}
+.ib-p{background:var(--purple-bg);border:1px solid var(--purple-bd)}
+.ib-p .ib-l{color:var(--purple)}
+.ib-p .it{color:var(--mnem);font-weight:500;font-style:italic}
+.ib-p .id{font-size:11.5px;color:var(--text3);margin-top:3px;font-style:normal}
+.ib-b{background:var(--blue-bg);border:1px solid var(--blue-bd)}
+.ib-b .ib-l{color:var(--blue)}
+.ib-g{background:var(--green-bg);border:1px solid var(--green-bd)}
+.ib-g .ib-l{color:var(--green)}
+.ib-r{background:var(--red-bg);border:1px solid var(--red-bd)}
+.ib-r .ib-l{color:var(--red)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+@media(max-width:420px){.g2{grid-template-columns:1fr}}
+
+body.rev .logic,body.rev .ib-p,body.rev .pg-sub,body.rev .ib .id,body.rev .qe{display:none!important}
+body.rev .cd{padding:14px 16px}
+body.rev .core{font-size:13.5px;margin-bottom:5px}
+body.rev .cd-t{font-size:14px;margin-bottom:5px}
+body.rev .ib{padding:9px 11px;margin-bottom:7px}
+
+/* ══════════ LISTS ══════════ */
+.ul{list-style:none;padding:0}
+.ul li{font-size:13.5px;color:var(--text2);padding:9px 0;border-bottom:1px solid var(--card-border);
+  display:flex;gap:8px;align-items:baseline;transition:color .4s,border-color .4s}
+.ul li:last-child{border-bottom:none}
+.ul .dt{width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:6px}
+.ul .hl{color:var(--text);font-weight:500}
+
+/* ══════════ TABLES ══════════ */
+.rt{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+.rt th{text-align:left;padding:9px 10px;background:var(--th-bg);color:var(--text);
+  font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;
+  border-bottom:1px solid var(--card-border);transition:background .4s,color .4s,border-color .4s}
+.rt td{padding:9px 10px;border-bottom:1px solid var(--card-border);color:var(--text2);
+  vertical-align:top;transition:color .4s,border-color .4s}
+.rt tr:last-child td{border-bottom:none}
+
+/* ══════════ QUIZ ══════════ */
+.qi{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r);
+  padding:16px;margin-bottom:10px;transition:border-color .4s,background .4s}
+.qn{font-size:10px;font-weight:700;color:var(--blue);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.qt{font-size:13.5px;font-weight:500;margin-bottom:9px;line-height:1.5}
+.qo{display:flex;flex-direction:column;gap:5px}
+.qop{padding:10px 13px;border-radius:var(--rxs);font-size:12.5px;color:var(--text2);
+  background:var(--opt-bg);border:1px solid var(--card-border);cursor:pointer;
+  transition:all .2s;user-select:none}
+.qop:hover{border-color:rgba(128,128,128,0.18);color:var(--text)}
+.qop.ok{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);font-weight:600}
+.qop.no{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);font-weight:600}
+.qop.off{pointer-events:none;opacity:.55}
+.qa{margin-top:7px;font-size:11.5px;font-weight:600;color:var(--green);display:none}
+.qa.sh{display:block}
+.qe{margin-top:3px;font-size:11.5px;color:var(--text3);display:none}
+.qe.sh{display:block}
+
+/* ══════════ FINAL ══════════ */
+.fb{background:linear-gradient(145deg,rgba(10,132,255,0.05),rgba(191,90,242,0.05));
+  border:1px solid rgba(128,128,128,0.08);border-radius:var(--r);padding:18px;margin-bottom:12px;
+  transition:background .4s,border-color .4s}
+.story{font-size:13.5px;color:var(--story);font-style:italic;line-height:1.7;transition:color .4s}
+.story .hl{color:var(--text);font-weight:600;font-style:normal}
+
+/* ══════════ CHECKLIST ══════════ */
+.cl{list-style:none;padding:0}
+.cl li{font-size:13.5px;color:var(--text2);padding:7px 0;border-bottom:1px solid var(--card-border);
+  display:flex;align-items:flex-start;gap:9px;transition:color .4s,border-color .4s}
+.cl li:last-child{border-bottom:none}
+.ck{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--text3);flex-shrink:0;
+  margin-top:1px;cursor:pointer;transition:all .15s;display:flex;align-items:center;
+  justify-content:center;font-size:10px;color:transparent}
+.cl li.dn .ck{background:var(--green);border-color:var(--green);color:#000}
+.cl li.dn{color:var(--text3);text-decoration:line-through}
+.sep{height:1px;background:var(--card-border);margin:14px 0;transition:background .4s}
+
+/* ══════════ CONTACT ══════════ */
+.contact{text-align:center;padding:48px 24px 64px;border-top:1px solid var(--card-border);
+  transition:border-color .4s}
+.contact-label{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:1.5px;color:#636366;margin-bottom:14px}
+.contact-email{font-size:15px;font-weight:400;color:#8e8e93;text-decoration:none;
+  letter-spacing:-.1px;transition:color .2s;display:inline-block}
+.contact-email:hover{color:#0a84ff}
+.contact-sub{margin-top:10px;font-size:12px;color:#48484a;font-weight:400}
+</style>
+</head>
+<body>
+
+<!-- ═══════ INTRO ═══════ -->
+<div class="intro" id="intro">
+  <div class="intro-line">
+    <div class="intro-title">Created By Manish Dhangar</div>
+  </div>
+  <div class="intro-line">
+    <div class="intro-tag">Hacker soul ⚡️ but weak for true feelings 🍁</div>
+  </div>
+  <div class="intro-line">
+    <button class="intro-btn" id="introBtn">Tap to Continue</button>
+  </div>
+</div>
+
+<!-- ═══════ POPUP ═══════ -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-box">
+    <button class="popup-close" id="popupClose" aria-label="Close">✕</button>
+    <div class="popup-emoji">📘🧠</div>
+    <div class="popup-text">After this → read HSC textbook 📘 and solve 2025 PYQs 🧠</div>
+  </div>
+</div>
+
+<!-- ═══════ PROGRESS ═══════ -->
+<div id="progress"></div>
+
+<!-- ═══════ DESKTOP NAV ═══════ -->
+<nav class="dnav">
+<div class="dnav-in">
+<div class="dnav-brand">Transition Elements</div>
+<div class="dnav-links">
+  <a href="#p1" data-pg="p1">P1</a><a href="#p2" data-pg="p2">P2</a>
+  <a href="#p3" data-pg="p3">P3</a><a href="#p4" data-pg="p4">P4</a>
+  <a href="#p5" data-pg="p5">P5</a><a href="#p6" data-pg="p6">P6</a>
+</div>
+<div class="tbtns">
+  <button class="tbtn active" data-theme="dark" aria-label="Dark">🌙</button>
+  <button class="tbtn" data-theme="light" aria-label="Light">☀️</button>
+  <button class="tbtn" data-theme="pink" aria-label="Pink">💗</button>
+</div>
+</div>
+</nav>
+
+<!-- ═══════ MOBILE NAV ═══════ -->
+<nav class="bnav">
+<a href="#p1" data-pg="p1"><span class="n">1</span>Core</a>
+<a href="#p2" data-pg="p2"><span class="n">2</span>Props</a>
+<a href="#p3" data-pg="p3"><span class="n">3</span>Color</a>
+<a href="#p4" data-pg="p4"><span class="n">4</span>Catalyst</a>
+<a href="#p5" data-pg="p5"><span class="n">5</span>f-Block</a>
+<a href="#p6" data-pg="p6"><span class="n">6</span>Revise</a>
+<a href="#" class="tc" id="mobTheme" aria-label="Theme"><span class="n">🎨</span></a>
+</nav>
+
+<!-- ═══════ REV TOGGLES ═══════ -->
+<div class="rw pm"><button class="rb" id="rB1" aria-label="Revision">⚡</button><span class="rl" id="rL1">REV</span></div>
+<div class="rw pd"><button class="rb" id="rB2" aria-label="Revision">⚡</button><span class="rl" id="rL2">REV</span></div>
+
+<!-- ═══════ CONTENT ═══════ -->
+<div class="ct">
+
+<!-- ═══ PAGE 1 ═══ -->
+<section class="pg" id="p1">
+<div class="pg-hd"><div class="pg-tag">Page 1 · Foundation</div><h1 class="pg-t">Core Concepts Map</h1><div class="pg-sub">Ultra-compressed — scan in 2 minutes</div></div>
+
+<div class="cd">
+<div class="cd-t">d-Block Element <span class="bg bg-m">⭐⭐⭐⭐</span></div>
+<div class="core">Last electron enters <span class="hl">d-subshell of penultimate (n-1) shell</span>. Groups 3–12. Config: <span class="hl">(n-1)d¹⁻¹⁰ ns¹⁻²</span>.</div>
+<div class="logic">Differentiating electron goes into (n-1)d, not outermost. This unique placement gives transition elements their characteristic properties.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"शेवटचा प्रवासी एका पातळी खाली फिरून d-दरवाज्यात शिरतो"</div><div class="id">प्रवासी = last e⁻. पातळी खाली = (n-1) shell. d-दरवाजा = d-subshell.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"3d series चा शेवटचा element?" → Zn: [Ar] 3d¹⁰ 4s²</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">4s नंतर 3d लिहिणं. नेहमी (n-1)d पहिले लिहा.</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Transition Element Definition <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core">Atom with <span class="hl">incomplete d-subshell</span> OR forms at least one stable ion with <span class="hl">incomplete d-subshell</span>.</div>
+<div class="logic">"Incomplete" हा मुख्य शब्द. Ground state बघा. जर पूर्ण असेल तर ions बघा. कुठेही incomplete d नाही → NOT transition.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"d मध्ये रिकामी जागा असणे अनिवार्य — अटोम असो किंवा आयन!"</div><div class="id">Incomplete d = must. Atom किंवा ion, एकातही incomplete d असले तर transition.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"कोणता transition element नाही?" → Zn/Cd/Hg options.</div></div>
+<div class="ib ib-g"><div class="ib-l">⚡ Shortcut</div><div class="ib-t">Atom d¹⁰ + सर्व ions d¹⁰ → NOT transition.</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Zn, Cd, Hg Exception <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core">तिघांची <span class="hl">d¹⁰ configuration</span> — atom मध्ये आणि +2 ion मध्ये. → <span class="hl">NOT transition elements.</span></div>
+<div class="logic">Zn: [Ar] 3d¹⁰ 4s², Zn²⁺: [Ar] 3d¹⁰. Cd: 4d¹⁰ 5s². Hg: 5d¹⁰ 6s². कुठल्याही form मध्ये incomplete d नाही.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"झिंदगीत CD Hit होत नाही — d पूर्ण भरलेला, रिकामी जागा शून्य!"</div><div class="id">Zn, Cd, Hg = "Hit नाही" = transition नाही. d¹⁰ = पूर्ण → scope शून्य.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Hg transition element का नाही?" → d¹⁰ atom + ion.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">d-block = Transition? NO! हा #1 trap.</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Key Terms <span class="bg bg-l">⭐⭐⭐</span></div>
+<ul class="ul">
+<li><span class="dt"></span><span><span class="hl">3d series:</span> Sc(21) → Zn(30) — 10 elements</span></li>
+<li><span class="dt"></span><span><span class="hl">4d series:</span> Y(39) → Cd(48)</span></li>
+<li><span class="dt"></span><span><span class="hl">5d series:</span> La(57) → Hg(80)</span></li>
+<li><span class="dt"></span><span><span class="hl">6d series:</span> Ac(89) onwards (incomplete)</span></li>
+<li><span class="dt"></span><span><span class="hl">f-block:</span> Lanthanides (4f) + Actinides (5f) = Inner Transition</span></li>
+</ul></div>
+</section>
+
+<!-- ═══ PAGE 2 ═══ -->
+<section class="pg" id="p2">
+<div class="pg-hd"><div class="pg-tag">Page 2 · Properties</div><h1 class="pg-t">General Properties</h1><div class="pg-sub">Variable OS, Size, Density, MP, IE</div></div>
+
+<div class="cd">
+<div class="cd-t">Variable Oxidation States <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core"><span class="hl">ns आणि (n-1)d यांच्यातले energy gap खूपच कमी</span> → दोन्ही bonding मध्ये participate → multiple OS.</div>
+<div class="logic">ns electrons पहिले जातात (outer), मग (n-1)d. Max OS = ns + (n-1)d बेरीज. Mn: +2 ते +7 (3d मध्ये max).</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"ns आणि d यांचं अंतर इतकं कमी की दोघे बाहेर पडायला तयार — एकटा, दोन, तीन… सगळे!"</div><div class="id">Energy gap ≈ 0 → एक-दोन-तीन electrons बाहेर → +1, +2, +3… OS.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"3d मध्ये highest OS?" → Mn (+7). "Most stable?" → +2, +3.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">Max OS = Most stable? NO. Higher OS = strong oxidizing agent.</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Atomic & Ionic Radii <span class="bg bg-m">⭐⭐⭐⭐</span></div>
+<div class="core">सुरुवातीला <span class="hl">घटतो</span> (poor d-shielding) → मग <span class="hl">स्थिर होतो</span> (e⁻-e⁻ repulsion balance).</div>
+<div class="logic">Nuclear charge वाढतो. d-electrons छान shield करत नाहीत → outer e⁻ pull → size घटतो. d⁵ नंतर repel → stabilize.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"d-इलेक्ट्रॉन्स चोरीने आत घुसतात — न्यूक्लियस ओढतो. मग आपसात भांडण — आकार थांबतो!"</div><div class="id">Poor shielding = pull = shrink. Repulsion = flat. Graph: घट → ताप.</div></div>
+<div class="g2">
+<div class="ib ib-g"><div class="ib-l">⚡ Shortcut</div><div class="ib-t">Steep fall (Sc→Mn) → Flat (Fe→Zn). "Non-uniform" = key word.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">"Uniform decrease" म्हणू नका. d-block मध्ये non-uniform.</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Density & Melting Point <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core"><span class="hl">Density:</span> Series भर वाढते. Highest → <span class="hl">Os</span> (5d).<br><span class="hl">MP:</span> Max at <span class="hl">Group 6: Cr, Mo, W</span> (max unpaired d-e⁻). Lowest → Zn, Cd, Hg.</div>
+<div class="logic">जास्त unpaired d-e⁻ = strong metallic bonding. d⁵s¹ = 6 unpaired = max bond = max MP. d¹⁰ = 0 = min MP.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"Cr, Mo, W — त्यांच्या d⁵ मध्ये सगळे अकेले, लोखंडी बंध — उष्णता सहन! Zn मध्ये कुणीच अकेला नाही — पिघळतो!"</div><div class="id">d⁵s¹ = 6 unpaired = max MP. d¹⁰ = 0 = min MP.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Highest MP?" → W. "Highest density?" → Os. "Lowest MP 3d?" → Zn.</div></div>
+<div class="ib ib-g"><div class="ib-l">⚡ Shortcut</div><div class="ib-t">Os = Dense. W = Hot. "ओस-डेन्स, डब्ल्यू-हॉट" — 2 sec!</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Ionization Energy <span class="bg bg-m">⭐⭐⭐⭐</span></div>
+<div class="core">सामान्यतः <span class="hl">वाढतो</span> पण <span class="hl">irregular</span>. d⁵/d¹⁰ जवळ extra stability → IE spike.</div>
+<div class="logic">Nuclear charge वाढते → IE वाढावी. पण half-filled (Cr: 3d⁵4s¹) आणि fully-filled (Cu: 3d¹⁰4s¹) exceptionally stable.</div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"IE trend?" → Generally increases, irregular due to d⁵/d¹⁰.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">"Smooth increase" म्हणू नका. "Irregular" हा key.</div></div>
+</div></div>
+</section>
+
+<!-- ═══ PAGE 3 ═══ -->
+<section class="pg" id="p3">
+<div class="pg-hd"><div class="pg-tag">Page 3 · Colour & Magnetism</div><h1 class="pg-t">Colour + Magnetism</h1><div class="pg-sub">d-d transition, paramagnetism, spin-only formula</div></div>
+
+<div class="cd">
+<div class="cd-t">Colour of Ions <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core"><span class="hl">d-d transition:</span> e⁻ split d-orbitals तरला jump → visible light absorb → <span class="hl">Complementary colour दिसतो.</span></div>
+<div class="logic">Free ion मध्ये 5 d-orbitals degenerate. Ligands मुळे split होतात. e⁻ photon absorb करून jump → उरलेला light = complementary.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"d-दरवाज्यातून उडी मारली — एक रंग गिळला, उरलेला रंग डोळ्यांना दिसला!"</div><div class="id">Cu²⁺ लाल गिळतो → निळा-हिरवा दिसतो. Ti³⁺ पिवळा-हिरवा गिळतो → जांभळा.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Sc³⁺ colourless पण Ti³⁺ purple का?" → Sc³⁺ = d⁰.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">d⁰ (Sc³⁺) आणि d¹⁰ (Zn²⁺) ALWAYS colourless!</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Paramagnetism <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core"><span class="hl">Unpaired electrons</span> → magnetic field ओढते. <span class="hl">μ = √[n(n+2)] BM</span></div>
+<div class="logic">जास्त unpaired e⁻ = जास्त paramagnetism. n = ION मधील unpaired e⁻. Diamagnetic = सगळे paired.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"अकेला इलेक्ट्रॉन — चुंबकाने प्रेमाने ओढला. √n(n+2) लक्षात ठेव!"</div><div class="id">n=1→1.73, n=2→2.83, n=3→3.87, n=4→4.90, n=5→5.92 BM.</div></div>
+<div class="g2">
+<div class="ib ib-g"><div class="ib-l">⚡ Shortcut</div><div class="ib-t">5 values: 1.73 | 2.83 | 3.87 | 4.90 | 5.92. Direct match.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">NEUTRAL atom मध्ये unpaired शोधणं. ION ची config लिहा!</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Colour Chart <span class="bg bg-m">⭐⭐⭐⭐</span></div>
+<table class="rt"><thead><tr><th>Ion</th><th>Config</th><th>Colour</th></tr></thead><tbody>
+<tr><td>Ti³⁺</td><td>3d¹</td><td>Purple</td></tr>
+<tr><td>V³⁺</td><td>3d²</td><td>Green</td></tr>
+<tr><td>Cr³⁺</td><td>3d³</td><td>Violet / Green</td></tr>
+<tr><td>Mn²⁺</td><td>3d⁵</td><td>Light pink</td></tr>
+<tr><td>Fe²⁺</td><td>3d⁶</td><td>Light green</td></tr>
+<tr><td>Fe³⁺</td><td>3d⁵</td><td>Yellowish-brown</td></tr>
+<tr><td>Co²⁺</td><td>3d⁷</td><td>Pink</td></tr>
+<tr><td>Ni²⁺</td><td>3d⁸</td><td>Green</td></tr>
+<tr><td>Cu²⁺</td><td>3d⁹</td><td>Blue</td></tr>
+<tr><td>Zn²⁺</td><td>3d¹⁰</td><td>Colorless</td></tr>
+</tbody></table></div>
+</section>
+
+<!-- ═══ PAGE 4 ═══ -->
+<section class="pg" id="p4">
+<div class="pg-hd"><div class="pg-tag">Page 4 · Applications</div><h1 class="pg-t">Catalytic + Complex Formation</h1><div class="pg-sub">Exact textbook reasons</div></div>
+
+<div class="cd">
+<div class="cd-t">Catalytic Properties <span class="bg bg-m">⭐⭐⭐⭐</span></div>
+<div class="core">तीन कारण: <span class="hl">Variable OS</span>, <span class="hl">Large surface area</span>, <span class="hl">Intermediate complex formation</span> (lowers Ea).</div>
+<div class="logic">Variable OS → temp e⁻ transfer. Large surface → adsorption. Intermediate complex → bond breaking easier → lower activation energy.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"कॅटालिस्टचं काम ROS — Rapid सरफेस, OS बदलतो, सरफेसवर complex बनवतो!"</div><div class="id">R = Rapid surface, O = OS variable, S = Surface complex.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Haber's?" → Fe. "Contact?" → V₂O₅. "Vanaspati?" → Ni.</div></div>
+<div class="ib ib-g"><div class="ib-l">⚡ Shortcut</div><div class="ib-t">"Catalytic reason" → "variable OS" किंवा "intermediate complex".</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Complex Formation <span class="bg bg-m">⭐⭐⭐⭐</span></div>
+<div class="core"><span class="hl">High charge/radius ratio</span> + <span class="hl">vacant d-orbitals</span> → lone pairs स्वीकारते → <span class="hl">Lewis acid.</span></div>
+<div class="logic">Small size + high charge = high charge density. Vacant (n-1)d = space for ligand lone pairs.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"छोटा + जास्त charge = ताकदवान. Vacant d-खोल्या रिकाम्या — ligand आला, lone pair ठेवून गेला!"</div><div class="id">High density = strong pull. Vacant d = empty rooms = Lewis acid.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Complex formation का?" → "Vacant d-orbitals" option.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">"Completely filled d-orbitals" → चुकीचा! VACANT हा अचूक.</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Alloy Formation <span class="bg bg-l">⭐⭐⭐</span></div>
+<div class="core">Easily form alloys — <span class="hl">similar atomic sizes</span> + <span class="hl">similar crystal structures</span>.</div>
+<div class="logic">d-block मध्ये radii फार बदलत नाहीत (~10-15 pm). Similar size → atoms replace each other in lattice.</div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Alloys का बनतात?" → Similar atomic sizes + structures.</div></div>
+<div class="ib ib-g"><div class="ib-l">⚡ Shortcut</div><div class="ib-t">"Similar atomic radii" दिसलाच → alloy answer.</div></div>
+</div></div>
+</section>
+
+<!-- ═══ PAGE 5 ═══ -->
+<section class="pg" id="p5">
+<div class="pg-hd"><div class="pg-tag">Page 5 · f-Block</div><h1 class="pg-t">Inner Transition Elements</h1><div class="pg-sub">Lanthanides, Actinides, Contraction</div></div>
+
+<div class="cd">
+<div class="cd-t">Lanthanides & Actinides <span class="bg bg-m">⭐⭐⭐⭐</span></div>
+<div class="core"><span class="hl">Lanthanides:</span> Ce(58) → Lu(71) — 4f. "Rare Earths".<br><span class="hl">Actinides:</span> Th(90) → Lr(103) — 5f. बहुतांश radioactive.</div>
+<div class="logic">f-block elements La-Hf आणि Ac-Rf दरम्यान insert. "Inner transition" कारण e⁻ (n-2)f मध्ये जातो.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"लँथेनाइड = चौथ्या मजल्यावर f-खोली. ॲक्टिनाइड = पाचव्या मजल्यावर. दोघे आत लपलेले!"</div><div class="id">"Inner" कारण f = (n-2). 4f = Lanthanoids, 5f = Actinoids.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"किती लँथेनाइड्स?" → 14 (Ce to Lu).</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">"Rare earths" = misleading. Pm सोडवता rare नाहीत!</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Lanthanide Contraction <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core">Ce ते Lu पर्यंत radii <span class="hl">steady decrease</span>. Reason: <span class="hl">4f electrons imperfect shielding</span>.</div>
+<div class="logic">14 elements भर nuclear charge +14. 4f e⁻ poorly shield (diffused). Net: outer ns पूर्ण +14 pull → shrinkage ~10-15 pm.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"4f इलेक्ट्रॉन्स स्वार्थी — न्यूक्लियसचा आकर्षण स्वतःचा घेतात, बाहेरच्यांना शिल्ड करत नाहीत!"</div><div class="id">4f shielding खूपच कमी. प्रत्येक +1 effectively outer e⁻ pull करते.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Contraction reason?" → Imperfect shielding by 4f.</div></div>
+<div class="ib ib-r"><div class="ib-l">🚨 Trap</div><div class="ib-t">"Poor shielding by d-electrons" → चुक! Strictly 4f!</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Effects of Contraction <span class="bg bg-h">⭐⭐⭐⭐⭐</span></div>
+<div class="core"><span class="hl">Effect 1:</span> 4d & 5d same group → same size → <span class="hl">separation कठीण</span> (Zr-Hf, Nb-Ta, Mo-W).<br><span class="hl">Effect 2:</span> Basic strength <span class="hl">घटते</span> La(OH)₃ → Lu(OH)₃.</div>
+<div class="logic">Hf ला 14 extra protons. Contraction compensates → Zr(160) ≈ Hf(159pm). Smaller ion → M-O stronger → O-H weaker → less basic.</div>
+<div class="ib ib-p"><div class="ib-l">🧠 Mnemonic</div><div class="it">"आकार घटला — Zr-Hf जोडीदार झाले, वेगळे करणे अशक्य! La-Lu लहान — basic ताकद कमी!"</div><div class="id">Size match = separation nightmare. Small = strong M-O = less basic.</div></div>
+<div class="g2">
+<div class="ib ib-b"><div class="ib-l">🎯 Exam Trigger</div><div class="ib-t">"Separate कठीण?" → Zr-Hf. "Basic order?" → La(OH)₃ > Lu(OH)₃.</div></div>
+<div class="ib ib-g"><div class="ib-l">⚡ Shortcut</div><div class="ib-t">4d + 5d same group pair = "difficult to separate".</div></div>
+</div></div>
+
+<div class="cd">
+<div class="cd-t">Lanthanide vs Actinide <span class="bg bg-m">⭐⭐⭐</span></div>
+<table class="rt"><thead><tr><th>Property</th><th>Lanthanides</th><th>Actinides</th></tr></thead><tbody>
+<tr><td>Orbital</td><td>4f</td><td>5f</td></tr>
+<tr><td>Radioactivity</td><td>Non-radioactive (Pm सोडून)</td><td>बहुतांश radioactive</td></tr>
+<tr><td>Common OS</td><td>+3</td><td>Variable (+3 to +6)</td></tr>
+<tr><td>Contraction</td><td>Lanthanide contraction</td><td>Actinide contraction (greater)</td></tr>
+<tr><td>Shielding</td><td>4f more buried</td><td>5f more extended</td></tr>
+</tbody></table></div>
+</section>
+
+<!-- ═══ PAGE 6 ═══ -->
+<section class="pg" id="p6">
+<div class="pg-hd"><div class="pg-tag">Page 6 · Final Weapon</div><h1 class="pg-t">Revision + Quiz</h1><div class="pg-sub">Cheat sheet, PYQ patterns, active recall</div></div>
+
+<div class="cd">
+<div class="cd-t">⚡ Ultra Fast Scan</div>
+<ul class="ul">
+<li><span class="dt"></span><span><span class="hl">Zn, Cd, Hg = NOT transition</span> (d¹⁰)</span></li>
+<li><span class="dt"></span><span><span class="hl">d⁰ & d¹⁰ ions = Colourless</span></span></li>
+<li><span class="dt"></span><span><span class="hl">μ = √[n(n+2)] BM</span> — n = ION मधील unpaired</span></li>
+<li><span class="dt"></span><span><span class="hl">MP = W</span> | <span class="hl">Density = Os</span></span></li>
+<li><span class="dt"></span><span><span class="hl">Contraction = 4f poor shielding</span></span></li>
+<li><span class="dt"></span><span><span class="hl">Zr-Hf, Nb-Ta, Mo-W</span> = same size</span></li>
+<li><span class="dt"></span><span><span class="hl">La(OH)₃ > Lu(OH)₃</span></span></li>
+<li><span class="dt"></span><span><span class="hl">Catalyst = Variable OS + Complex</span></span></li>
+<li><span class="dt"></span><span><span class="hl">Complex = Vacant d-orbitals</span></span></li>
+<li><span class="dt"></span><span><span class="hl">Radius = Non-uniform decrease</span></span></li>
+</ul></div>
+
+<div class="cd">
+<div class="cd-t">📊 Cheat Sheet</div>
+<table class="rt"><thead><tr><th>Concept</th><th>Key Fact</th><th>PYQ</th></tr></thead><tbody>
+<tr><td style="color:var(--text);font-weight:500">Not Transition</td><td>Zn, Cd, Hg (d¹⁰)</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Colorless</td><td>d⁰ & d¹⁰</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Highest MP</td><td>W (Tungsten)</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Highest Density</td><td>Os (Osmium)</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Magnetic Formula</td><td>μ = √[n(n+2)]</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Contraction Reason</td><td>4f poor shielding</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Separation Difficult</td><td>Zr-Hf, Nb-Ta, Mo-W</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Variable OS Reason</td><td>Small ns-(n-1)d gap</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">MP Max Group</td><td>Group 6 (Cr, Mo, W)</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td style="color:var(--text);font-weight:500">Cu Exception</td><td>[Ar] 3d¹⁰ 4s¹</td><td>⭐⭐⭐</td></tr>
+</tbody></table></div>
+
+<div class="cd">
+<div class="cd-t">🔄 PYQ Patterns (2021–2024)</div>
+<div class="logic" style="margin-bottom:10px">
+<span class="hl">Pattern 1 (Every Year):</span> Zn/Cd/Hg = non-transition → d¹⁰.<br>
+<span class="hl">Pattern 2 (Every Year):</span> Colorless ion → d⁰ किंवा d¹⁰.<br>
+<span class="hl">Pattern 3 (Alternating):</span> Spin-only → μ find n किंवा vice versa.<br>
+<span class="hl">Pattern 4 (2022, 2024):</span> Contraction → Zr-Hf similarity.<br>
+<span class="hl">Pattern 5 (2021, 2023):</span> MP/Density → W आणि Os.<br>
+<span class="hl">Pattern 6 (2023, 2024):</span> Basic strength order.
+</div>
+<div class="ib ib-g"><div class="ib-l">⚡ Strategy</div><div class="ib-t">Patterns 1-3 = 60%. त्यानंतर 4-6 = remaining 30-40%.</div></div>
+</div>
+
+<div class="fb">
+<div class="cd-t">🔥 Master Memory Story</div>
+<div class="story">
+"एका <span class="hl">d-दरवाज्यात</span> शेवटचा प्रवासी येतो. आत <span class="hl">झिंदगीत CD Hit होत नाही</span> (d¹⁰ full) — transition होऊच शकत नाही. जे आत गेले त्यांना <span class="hl">variable OS</span> मिळाली, <span class="hl">Cr/Mo/W</span> ला d⁵ म्हणजे सगळे अकेले — <span class="hl">उष्णता सहन!</span> d-d उडी मारून <span class="hl">रंग</span> दाखवला. खाली <span class="hl">4f स्वार्थी</span> लोकांनी contraction करून <span class="hl">Zr-Hf जोडीदार</span> बनवले आणि <span class="hl">basic ताकदही खाली आणली!</span>"
+</div></div>
+
+<div class="fb">
+<div class="cd-t">✅ Last Day Checklist</div>
+<ul class="cl" id="checklist">
+<li><span class="ck">✓</span>Zn, Cd, Hg = NOT transition (d¹⁰)</li>
+<li><span class="ck">✓</span>d⁰ & d¹⁰ = Colorless (no d-d)</li>
+<li><span class="ck">✓</span>μ = √[n(n+2)] — 5 values मुळा</li>
+<li><span class="ck">✓</span>MP = W | Density = Os</li>
+<li><span class="ck">✓</span>Contraction = 4f poor shielding (NOT d!)</li>
+<li><span class="ck">✓</span>Zr-Hf, Nb-Ta, Mo-W = same size</li>
+<li><span class="ck">✓</span>La(OH)₃ > Lu(OH)₃</li>
+<li><span class="ck">✓</span>Catalyst = Variable OS + Complex</li>
+<li><span class="ck">✓</span>Complex = Vacant d-orbitals</li>
+<li><span class="ck">✓</span>Radius = non-uniform decrease</li>
+</ul></div>
+
+<div class="sep"></div>
+<div class="cd-t" style="margin-bottom:12px;padding:0 4px">🧠 Active Recall Quiz</div>
+<div class="pg-sub" style="margin-bottom:12px;padding:0 4px">Click any option to reveal</div>
+
+<div class="qi">
+<div class="qn">Question 01</div>
+<div class="qt">Which is NOT a transition element?</div>
+<div class="qo"><div class="qop">Fe</div><div class="qop">Cu</div><div class="qop" data-correct="true">Zn</div><div class="qop">Ni</div></div>
+<div class="qa">✓ Zn — [Ar] 3d¹⁰ 4s², completely filled.</div>
+<div class="qe">d-block ≠ Transition. हा #1 trap.</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 02</div>
+<div class="qt">Ti³⁺ coloured but Sc³⁺ colourless because:</div>
+<div class="qo"><div class="qop">Ti has higher atomic number</div><div class="qop" data-correct="true">Sc³⁺ has d⁰ configuration</div><div class="qop">Ti³⁺ is paramagnetic</div><div class="qop">Sc³⁺ has higher charge</div></div>
+<div class="qa">✓ Sc³⁺ = 3d⁰. No e⁻ = no d-d = colorless.</div>
+<div class="qe">d⁰ आणि d¹⁰ = "colorless zones".</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 03</div>
+<div class="qt">Magnetic moment 4.9 BM. Unpaired electrons?</div>
+<div class="qo"><div class="qop">2</div><div class="qop">3</div><div class="qop" data-correct="true">4</div><div class="qop">5</div></div>
+<div class="qa">✓ n=4. √[4(6)] = √24 ≈ 4.90 BM.</div>
+<div class="qe">1→1.73, 2→2.83, 3→3.87, 4→4.90, 5→5.92.</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 04</div>
+<div class="qt">Most difficult to separate due to lanthanide contraction?</div>
+<div class="qo"><div class="qop">Fe and Co</div><div class="qop" data-correct="true">Zr and Hf</div><div class="qop">Ba and Sr</div><div class="qop">Na and K</div></div>
+<div class="qa">✓ Zr-Hf — 4d आणि 5d, nearly identical radii.</div>
+<div class="qe">Other pairs: Nb-Ta, Mo-W. सगळे 4d-5d same group.</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 05</div>
+<div class="qt">Lanthanide contraction caused due to:</div>
+<div class="qo"><div class="qop">Poor shielding by 5d</div><div class="qop" data-correct="true">Poor shielding by 4f</div><div class="qop">Increasing atomic number</div><div class="qop">High electronegativity</div></div>
+<div class="qa">✓ 4f poor shielding — exact HSC reason.</div>
+<div class="qe">"Poor shielding by d-electrons" = common distractor. Strictly 4f!</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 06</div>
+<div class="qt">Highest melting point transition metal?</div>
+<div class="qo"><div class="qop">Cr</div><div class="qop">Fe</div><div class="qop" data-correct="true">W (Tungsten)</div><div class="qop">Os</div></div>
+<div class="qa">✓ W — 3422°C. Group 6, d⁵s¹.</div>
+<div class="qe">Os = density king, NOT MP. "Os=Dense, W=Hot"!</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 07</div>
+<div class="qt">Correct basic strength order:</div>
+<div class="qo"><div class="qop" data-correct="true">La(OH)₃ > Lu(OH)₃</div><div class="qop">Lu(OH)₃ > La(OH)₃</div><div class="qop">Both equally basic</div><div class="qop">Cannot determine</div></div>
+<div class="qa">✓ La(OH)₃ > Lu(OH)₃ — size decreases.</div>
+<div class="qe">Smaller ion → stronger M-O → weaker O-H → less basic.</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 08</div>
+<div class="qt">Complex formation because of:</div>
+<div class="qo"><div class="qop">Filled d-orbitals</div><div class="qop" data-correct="true">Vacant d-orbitals</div><div class="qop">Low IE</div><div class="qop">High electronegativity</div></div>
+<div class="qa">✓ Vacant d-orbitals accept lone pairs.</div>
+<div class="qe">"Completely filled d-orbitals" = opposite = trap.</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 09</div>
+<div class="qt">Magnetic moment of Fe²⁺ approximately:</div>
+<div class="qo"><div class="qop">1.73 BM</div><div class="qop">2.83 BM</div><div class="qop">3.87 BM</div><div class="qop" data-correct="true">4.90 BM</div></div>
+<div class="qa">✓ Fe²⁺ = [Ar] 3d⁶ → 4 unpaired → √24 ≈ 4.90.</div>
+<div class="qe">Fe → Fe²⁺ loses 4s first → 3d⁶ → 4 unpaired.</div>
+</div>
+
+<div class="qi">
+<div class="qn">Question 10</div>
+<div class="qt">Colourless in aqueous solution?</div>
+<div class="qo"><div class="qop">Cu²⁺</div><div class="qop">Fe³⁺</div><div class="qop" data-correct="true">Zn²⁺</div><div class="qop">Ni²⁺</div></div>
+<div class="qa">✓ Zn²⁺ = 3d¹⁰ → no d-d → colorless.</div>
+<div class="qe">Cu²⁺=blue, Fe³⁺=yellow-brown, Ni²⁺=green. फक्त d¹⁰ = colorless.</div>
+</div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<footer class="contact">
+<div class="contact-label">Contact</div>
+<a class="contact-email" href="mailto:manish2stem@gmail.com">manish2stem@gmail.com</a>
+<div class="contact-sub">Made with precision for exam warriors</div>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ═══ INTRO ═══ */
+  var intro = document.getElementById('intro');
+  var introBtn = document.getElementById('introBtn');
+  var timer = setTimeout(dismiss, 2500);
+  var done = false;
+
+  function dismiss(){
+    if(done) return;
+    done = true;
+    clearTimeout(timer);
+    intro.classList.add('gone');
+    setTimeout(function(){
+      intro.style.display = 'none';
+      showPopup();
+    }, 750);
+  }
+
+  /* Button: explicit click, stops propagation */
+  introBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    dismiss();
+  });
+
+  /* Background: dismiss, but NOT on text lines */
+  intro.addEventListener('click', function(e){
+    if(e.target.closest('.intro-line')) return;
+    dismiss();
+  });
+
+  /* ═══ POPUP (session) ═══ */
+  var popup = document.getElementById('popup');
+  var popupClose = document.getElementById('popupClose');
+  var popupTimer = null;
+  var POPUP_KEY = 'popup_shown_' + Date.now().toString(36);
+
+  function showPopup(){
+    if(sessionStorage.getItem(POPUP_KEY)) return;
+    popup.classList.add('sh');
+    popupTimer = setTimeout(hidePopup, 3500);
+  }
+  function hidePopup(){
+    clearTimeout(popupTimer);
+    popup.classList.remove('sh');
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }
+  popupClose.addEventListener('click', hidePopup);
+  popup.addEventListener('click', function(e){
+    if(e.target === popup || e.target.classList.contains('popup-box')) hidePopup();
+  });
+
+  /* ═══ THEME ═══ */
+  var THEMES = ['dark','light','pink'];
+  var saved = localStorage.getItem('theme') || 'dark';
+  var cur = THEMES.indexOf(saved) !== -1 ? saved : 'dark';
+  applyTheme(cur);
+
+  document.querySelectorAll('.tbtn').forEach(function(b){
+    b.addEventListener('click', function(){ applyTheme(this.getAttribute('data-theme')); });
+  });
+  document.getElementById('mobTheme').addEventListener('click', function(e){
+    e.preventDefault();
+    applyTheme(THEMES[(THEMES.indexOf(cur)+1) % THEMES.length]);
+  });
+
+  function applyTheme(name){
+    cur = name;
+    if(name === 'dark') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', name);
+    localStorage.setItem('theme', name);
+    document.querySelectorAll('.tbtn').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-theme') === name);
+    });
+  }
+
+  /* ═══ PROGRESS BAR ═══ */
+  var bar = document.getElementById('progress');
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = h > 0 ? (window.scrollY / h) * 100 + '%' : '0%';
+  }, {passive:true});
+
+  /* ═══ INTERSECTION OBSERVER ═══ */
+  var pages = document.querySelectorAll('.pg');
+  var navLinks = document.querySelectorAll('[data-pg]');
+
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) setActive(e.target.id); });
+  }, {rootMargin:'-20% 0px -65% 0px'});
+  pages.forEach(function(p){ obs.observe(p); });
+
+  function setActive(id){
+    navLinks.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('data-pg') === id);
+    });
+  }
+
+  /* ═══ SMOOTH SCROLL ═══ */
+  navLinks.forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var t = document.querySelector(this.getAttribute('href'));
+      if(t) t.scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  /* ═══ REVISION MODE ═══ */
+  var rB1 = document.getElementById('rB1'), rB2 = document.getElementById('rB2');
+  var rL1 = document.getElementById('rL1'), rL2 = document.getElementById('rL2');
+  var revOn = false;
+
+  function toggleRev(){
+    revOn = !revOn;
+    document.body.classList.toggle('rev', revOn);
+    [rB1,rB2].forEach(function(b){ b.classList.toggle('on', revOn); b.textContent = revOn ? '📖' : '⚡'; });
+    [rL1,rL2].forEach(function(l){ l.classList.toggle('on', revOn); l.textContent = revOn ? 'FULL' : 'REV'; });
+  }
+  rB1.addEventListener('click', toggleRev);
+  rB2.addEventListener('click', toggleRev);
+
+  /* ═══ QUIZ ═══ */
+  document.querySelectorAll('.qi').forEach(function(item){
+    item.addEventListener('click', function(e){
+      var opt = e.target.closest('.qop');
+      if(!opt || opt.classList.contains('off')) return;
+      var correct = item.querySelector('[data-correct="true"]');
+      var all = item.querySelectorAll('.qop');
+      var ans = item.querySelector('.qa');
+      var exp = item.querySelector('.qe');
+      var hit = opt.hasAttribute('data-correct');
+      all.forEach(function(o){ o.classList.add('off'); });
+      if(correct) correct.classList.add('ok');
+      if(!hit) opt.classList.add('no');
+      if(ans) ans.classList.add('sh');
+      if(exp) exp.classList.add('sh');
+    });
+  });
+
+  /* ═══ CHECKLIST ═══ */
+  document.getElementById('checklist').addEventListener('click', function(e){
+    var ck = e.target.closest('.ck');
+    if(ck) ck.parentElement.classList.toggle('dn');
+  });
+
+})();
+</script>
+</body>
+</html>
